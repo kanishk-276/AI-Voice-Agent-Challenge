@@ -1,67 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Voice Agent</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  </head>
-  <body>
-    <div
-      class="bg-gradient-to-bl from-[#9400d3] to-[#4b0082] w-full h-screen flex justify-center items-center flex-col"
-    >
-      <h1 class="text-4xl font-bold text-white opacity-75 m-10">
-        AI Voice Agent
-      </h1>
+<head>
+  <meta charset="UTF-8" />
+  <title>Voice Agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-      <button
-        class="group relative inline-flex items-center justify-center px-8 py-3 text-lg font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500 rounded-full transition-all duration-300 group-hover:scale-110 animate-gradient"
-        ></div>
+<body class="bg-[#0f0f1c] min-h-screen flex items-center justify-center text-white font-sans">
+  <div
+    class="bg-white/5 backdrop-blur-md shadow-xl rounded-3xl p-10 w-full max-w-xl border border-white/10 flex flex-col items-center justify-center gap-6">
 
-        <div
-          class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 bg-white blur-xl"
-        ></div>
 
-        <div class="absolute inset-0 overflow-hidden rounded-full">
-          <div class="glitter-container">
-            <div class="glitter"></div>
-            <div class="glitter"></div>
-            <div class="glitter"></div>
-          </div>
-        </div>
+    <div class="text-center">
+      <h1 class="text-3xl font-bold mb-2 text-white/90">Hello! 👋</h1>
+      <h2 class="text-xl font-semibold text-purple-400">AI Voice Agent</h2>
+    </div>
 
-        <div
-          class="absolute inset-0 rounded-full border-2 border-white opacity-20 group-hover:opacity-40 group-hover:scale-105 transition-all duration-300"
-        ></div>
 
-        <div class="absolute inset-0 rounded-full overflow-hidden">
-          <div class="wave"></div>
-        </div>
+    <div class="flex flex-col items-center gap-4 w-full">
+      <input id="textInput" placeholder="Enter a Prompt..." type="text" name="text"
+        class="w-full px-4 py-3 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-purple-500 border border-white/10" />
 
-        <span class="relative z-10 flex items-center gap-2">
-          <span class="tracking-wider">Day 1</span>
-          <svg
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            fill="none"
-            class="w-5 h-5 transform transition-transform duration-300 group-hover:translate-x-1"
-          >
-            <path
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-              stroke-width="2"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            ></path>
-          </svg>
-          <span
-            class="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
-          ></span>
-        </span>
+      <button onclick="generateAudio()"
+        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:scale-105 transition-transform duration-300 w-full">
+        Generate Audio →
       </button>
     </div>
-    <script src="/script.js"></script>
-  </body>
+
+    <audio id="audioPlayer" controls class="w-full mt-4 hidden bg-black/20 backdrop-blur rounded-lg"></audio>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+
 </html>
