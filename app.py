@@ -4,8 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from fastapi import UploadFile, File
 import os
 import httpx
+import shutil
+
 
 
 load_dotenv()
@@ -58,4 +61,24 @@ async def generate_audio(input: TextInput):
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
         
-        return response.json()
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.post("/upload-audio")
+async def upload_audio(audio: UploadFile = File(...)):
+    try:
+        file_location = os.path.join(UPLOAD_DIR, audio.filename)
+
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(audio.file, buffer)
+
+        return {
+            "filename": audio.filename,
+            "content_type": audio.content_type,
+            "size": os.path.getsize(file_location)
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
+    return response.json()
