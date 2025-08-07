@@ -71,22 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.ondataavailable = event => {
                 audioChunks.push(event.data);
             };
-
-           mediaRecorder.onstop = async () => {
+mediaRecorder.onstop = async () => {
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
     recordedAudio.src = audioUrl;
     recordedAudio.classList.remove("hidden");
 
-    // Upload logic
+    // Prepare the audio file for upload
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.webm");
 
-    try {
-        const uploadStatus = document.getElementById("uploadStatus");
-        if (uploadStatus) uploadStatus.textContent = "Uploading...";
+    const uploadStatus = document.getElementById("uploadStatus");
+    if (uploadStatus) uploadStatus.textContent = "🔄 Transcribing...";
 
-        const response = await fetch("/upload-audio", {
+    try {
+        // Send to new endpoint: /transcribe/file
+        const response = await fetch("/transcribe/file", {
             method: "POST",
             body: formData
         });
@@ -94,19 +94,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) throw new Error(await response.text());
 
         const result = await response.json();
-        console.log("Upload success:", result);
+        console.log("Transcription result:", result);
 
+        // Update status and transcript
         if (uploadStatus) {
-            uploadStatus.textContent = `✅ Uploaded: ${result.filename} (${result.size} bytes)`;
+            uploadStatus.textContent = "✅ Transcription complete";
+        }
+
+        const transcriptDiv = document.getElementById("transcript");
+        if (transcriptDiv) {
+            transcriptDiv.textContent = `Transcript:  ${result.transcription}`;
         }
     } catch (error) {
-        console.error("Upload failed:", error);
-        const uploadStatus = document.getElementById("uploadStatus");
-        if (uploadStatus) uploadStatus.textContent = "❌ Upload failed";
+        console.error("Transcription failed:", error);
+        if (uploadStatus) uploadStatus.textContent = "❌ Transcription failed";
     }
 
     audioChunks = [];
 };
+
 
         }) 
         .catch(err => {

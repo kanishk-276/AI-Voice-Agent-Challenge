@@ -8,10 +8,14 @@ from fastapi import UploadFile, File
 import os
 import httpx
 import shutil
-
-
+import assemblyai as aai
+from fastapi import UploadFile, File
 
 load_dotenv()
+
+aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
+transcriber = aai.Transcriber()
+
 MURF_API_KEY = os.getenv("MURF_API_KEY")
 
 
@@ -48,6 +52,16 @@ async def generate_audio(input: TextInput):
         "voice_id": "en-IN-aarav",  
         "output_format": "mp3"
     }
+    
+@app.post("/transcribe/file")
+async def transcribe_audio(audio: UploadFile = File(...)):
+    try:
+        audio_data = await audio.read()
+        transcript = transcriber.transcribe(audio_data)
+        return {"transcription": transcript.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
