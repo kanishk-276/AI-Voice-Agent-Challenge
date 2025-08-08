@@ -39,7 +39,6 @@ def read_index():
 
 class TextInput(BaseModel):
     text: str
-
 @app.post("/generate-audio")
 async def generate_audio(input: TextInput):
     headers = {
@@ -49,19 +48,9 @@ async def generate_audio(input: TextInput):
 
     payload = {
         "text": input.text,
-        "voice_id": "en-IN-aarav",  
+        "voice_id": "en-IN-aarav",
         "output_format": "mp3"
     }
-    
-@app.post("/transcribe/file")
-async def transcribe_audio(audio: UploadFile = File(...)):
-    try:
-        audio_data = await audio.read()
-        transcript = transcriber.transcribe(audio_data)
-        return {"transcription": transcript.text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -69,11 +58,29 @@ async def transcribe_audio(audio: UploadFile = File(...)):
             json=payload,
             headers=headers
         )
-        print("Status:", response.status_code)
-        print("Response:", response.text)
 
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.text)
+    print("Status:", response.status_code)
+    print("Response:", response.text)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    return response.json()  # This sends JSON back to script.js
+
+
+    
+@app.post("/transcribe/file")
+async def transcribe_audio(audio: UploadFile = File(...)):
+    try:
+        audio_data = await audio.read()
+        transcript = transcriber.transcribe(audio_data)
+        return {"transcription": transcript.text}
+    
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+ 
+
         
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)

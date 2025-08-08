@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------------- TEXT TO SPEECH ----------------
     const textInput = document.getElementById("textInput");
     const audioPlayer = document.getElementById("audioPlayer");
+    const newaudioPlayer = document.getElementById("newaudioPlayer");
 
     window.generateAudio = async function() {
         console.log("Script loaded!");
@@ -26,7 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const audioUrl = data.audioFile || data.audio_url;
+            if (!data || (!data.audioFile && !data.audio_url)) {
+    throw new Error("Invalid response from server");
+}
+
+const audioUrl = data.audioFile || data.audio_url;
+
             audioPlayer.src = audioUrl;
             audioPlayer.classList.remove("hidden");
             audioPlayer.play();
@@ -102,10 +108,42 @@ mediaRecorder.onstop = async () => {
         }
 
         const transcriptDiv = document.getElementById("transcript");
-        if (transcriptDiv) {
-            transcriptDiv.textContent = `Transcript:  ${result.transcription}`;
+if (transcriptDiv) {
+    transcriptDiv.textContent = `Transcript: ${result.transcription}`;
+    
+    try {
+        const ttsResponse = await fetch("/generate-audio", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: result.transcription }) 
+        });
+
+        if (!ttsResponse.ok) {
+            throw new Error("Request failed");
         }
+
+        const data = await ttsResponse.json();
+        if (!data || (!data.audioFile && !data.audio_url)) {
+            throw new Error("Invalid response from server");
+        }
+
+        const audioUrl = data.audioFile || data.audio_url;
+        newaudioPlayer.src = audioUrl;
+       newaudioPlayer.classList.remove("hidden");
+        newaudioPlayer.play();
+        const genn = document.getElementById("gen-voice");
+         genn.textContent = "AI Generated Voice";
     } catch (error) {
+        console.error("Error generating audio:", error);
+        alert("Something went wrong!");
+    }
+}
+
+
+        }
+    catch (error) {
         console.error("Transcription failed:", error);
         if (uploadStatus) uploadStatus.textContent = "❌ Transcription failed";
     }
