@@ -10,6 +10,7 @@ import httpx
 import shutil
 import assemblyai as aai
 from fastapi import UploadFile, File
+import google.generativeai as genai
 
 load_dotenv()
 
@@ -17,6 +18,9 @@ aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
 transcriber = aai.Transcriber()
 
 MURF_API_KEY = os.getenv("MURF_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+genai.configure(api_key=GEMINI_API_KEY)
 
 
 app = FastAPI()
@@ -29,6 +33,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class QueryRequest(BaseModel):
+    query: str
+    
+@app.post("/llm/query")
+
+async def llm_query(request_data: QueryRequest):
+    try:
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        response = model.generate_content(request_data.query)
+        reply = response.text
+
+        return {"response": reply}
+
+    except Exception as e:
+        return {"error": str(e)}
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
